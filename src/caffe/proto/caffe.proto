@@ -406,6 +406,8 @@ message LayerParameter {
   optional UpsampleParameter upsample_param = 147;
   optional BNParameter bn_param = 45;
   optional DenseImageDataParameter dense_image_data_param = 46;
+  optional MultiStageMeanfieldParameter multi_stage_meanfield_param = 1000;
+  
 }
 
 // Message that stores parameters used to apply transformation
@@ -464,6 +466,28 @@ message LossParameter {
 
 // Messages that store parameters used by individual layer types follow, in
 // alphabetical order.
+
+// Added from https://github.com/torrvision/crfasrnn 
+message MultiStageMeanfieldParameter {
+  enum Mode {
+    POTTS = 0;
+  }
+  optional Mode compatibility_mode = 1 [default = POTTS];
+  optional float threshold = 2;
+
+  required float theta_alpha = 3 [default = 10.];
+  required float theta_beta = 4 [default = 10.];
+  required float theta_gamma = 5 [default = 10.];
+
+  required uint32 num_iterations = 6 [default = 1];
+
+  optional string spatial_filter_weights_str = 19 [default=""];
+  optional string bilateral_filter_weights_str = 20 [default=""];
+
+  optional bool force_cpu=29 [default=false];//Force CPU meanfield to use, even though GPU is available
+}
+
+
 
 message AccuracyParameter {
   // When computing accuracy, count as correct by comparing the true label to
