@@ -8,10 +8,11 @@ source $BASEDIR/defaults.sh
 apt-get -y update
 apt-get install -y --no-install-recommends \
   build-essential \
-  libboost-filesystem-dev \
-  libboost-python-dev \
-  libboost-system-dev \
-  libboost-thread-dev \
+  graphviz \
+  libboost-filesystem1.55-dev \
+  libboost-python1.55-dev \
+  libboost-system1.55-dev \
+  libboost-thread1.55-dev \
   libgflags-dev \
   libgoogle-glog-dev \
   libhdf5-serial-dev \
@@ -31,6 +32,7 @@ if ! $WITH_PYTHON3 ; then
     python-dev \
     python-numpy \
     python-protobuf \
+    python-pydot \
     python-skimage
 else
   # Python3
@@ -104,7 +106,7 @@ if $WITH_CUDA ; then
   ln -s /usr/local/cuda-$CUDA_VERSION /usr/local/cuda
 
   if $WITH_CUDNN ; then
-    apt-get install -y --no-install-recommends libcudnn5-dev
+    apt-get install -y --no-install-recommends libcudnn6-dev
   fi
 fi
 
