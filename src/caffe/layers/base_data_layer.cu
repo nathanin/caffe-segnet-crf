@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "caffe/data_layers.hpp"
+#include "caffe/layers/base_data_layer.hpp"
 
 namespace caffe {
 
@@ -19,7 +19,6 @@ void BasePrefetchingDataLayer<Dtype>::Forward_gpu(
     top[1]->ReshapeLike(prefetch_current_->label_);
     top[1]->set_gpu_data(prefetch_current_->label_.mutable_gpu_data());
   }
-
 }
 
 INSTANTIATE_LAYER_GPU_FORWARD(BasePrefetchingDataLayer);

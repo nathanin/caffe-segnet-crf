@@ -9,6 +9,7 @@
 #include "hdf5.h"
 
 #include "caffe/blob.hpp"
+#include "caffe/layers/base_data_layer.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/common.hpp"
@@ -42,6 +43,7 @@ class DenseImageDataLayer : public BasePrefetchingDataLayer<Dtype> {
   shared_ptr<Caffe::RNG> prefetch_rng_;
   virtual void ShuffleImages();
   virtual void InternalThreadEntry();
+  virtual void load_batch(Batch<Dtype>* batch);
 
   vector<std::pair<std::string, std::string> > lines_;
   int lines_id_;

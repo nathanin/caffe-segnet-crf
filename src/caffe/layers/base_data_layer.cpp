@@ -1,9 +1,13 @@
-#include <string>
+#include <boost/thread.hpp>
 #include <vector>
 
-#include "caffe/data_layers.hpp"
-#include "caffe/util/io.hpp"
-//#include "caffe/layers/base_data_layer.hpp"
+#include "caffe/blob.hpp"
+#include "caffe/data_transformer.hpp"
+#include "caffe/internal_thread.hpp"
+#include "caffe/layer.hpp"
+#include "caffe/layers/base_data_layer.hpp"
+#include "caffe/proto/caffe.pb.h"
+#include "caffe/util/blocking_queue.hpp"
 
 namespace caffe {
 
@@ -63,15 +67,51 @@ void BasePrefetchingDataLayer<Dtype>::LayerSetUp(
         prefetch_[i]->label_.mutable_gpu_data();
       }
     }
-
   }
+#endif
+  DLOG(INFO) << "Initializing prefetch";
+  this->data_transformer_->InitRand();
+  StartInternalThread();
+  DLOG(INFO) << "Prefetch initialized.";
 }
 
+template <typename Dtype>
+void BasePrefetchingDataLayer<Dtype>::InternalThreadEntry() {
+#ifndef CPU_ONLY
+  cudaStream_t stream;
+  if (Caffe::mode() == Caffe::GPU) {
+    CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
+  }
+#endif
+
+  try {
+    while (!must_stop()) {
+      Batch<Dtype>* batch = prefetch_free_.pop();
+      load_batch(batch);
+#ifndef CPU_ONLY
+      if (Caffe::mode() == Caffe::GPU) {
+        batch->data_.data().get()->async_gpu_push(stream);
+        if (this->output_labels_) {
+          batch->label_.data().get()->async_gpu_push(stream);
+        }
+        CUDA_CHECK(cudaStreamSynchronize(stream));
+      }
+#endif
+      prefetch_full_.push(batch);
+    }
+  } catch (boost::thread_interrupted&) {
+    // Interrupted exception is expected on shutdown
+  }
+#ifndef CPU_ONLY
+  if (Caffe::mode() == Caffe::GPU) {
+    CUDA_CHECK(cudaStreamDestroy(stream));
+  }
+#endif
+}
 
 template <typename Dtype>
 void BasePrefetchingDataLayer<Dtype>::Forward_cpu(
     const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-
   if (prefetch_current_) {
     prefetch_free_.push(prefetch_current_);
   }
@@ -84,7 +124,6 @@ void BasePrefetchingDataLayer<Dtype>::Forward_cpu(
     top[1]->ReshapeLike(prefetch_current_->label_);
     top[1]->set_cpu_data(prefetch_current_->label_.mutable_cpu_data());
   }
-
 }
 
 #ifdef CPU_ONLY
