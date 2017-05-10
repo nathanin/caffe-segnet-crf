@@ -42,7 +42,7 @@ As described in **SegNet: A Deep Convolutional Encoder-Decoder Architecture for 
 Please refer to Alex Kendalls caffe-segnet for a tutorial and a guide how to use it (https://github.com/alexgkendall/caffe-segnet).
 
 # CRF-RNN for Semantic Image Segmentation
-This package contains code for the "CRF-RNN" semantic image segmentation method, published in the ICCV 2015 paper [Conditional Random Fields as Recurrent Neural Networks](http://www.robots.ox.ac.uk/~szheng/papers/CRFasRNN.pdf). This paper was initially described in an [arXiv tech report](http://arxiv.org/abs/1502.03240). The online demonstration based on this code won the Best Demo Prize at ICCV 2015. Our software is built on top of the [Caffe](http://caffe.berkeleyvision.org/) deep learning library. The current version was developed by:
+[This package](https://github.com/torrvision/crfasrnn/) contains code for the "CRF-RNN" semantic image segmentation method, published in the ICCV 2015 paper [Conditional Random Fields as Recurrent Neural Networks](http://www.robots.ox.ac.uk/~szheng/papers/CRFasRNN.pdf). This paper was initially described in an [arXiv tech report](http://arxiv.org/abs/1502.03240). The online demonstration based on this code won the Best Demo Prize at ICCV 2015. Our software is built on top of the [Caffe](http://caffe.berkeleyvision.org/) deep learning library. The current version was developed by:
 
 [Sadeep Jayasumana](http://www.robots.ox.ac.uk/~sadeep/),
 [Shuai Zheng](http://kylezheng.org/),
