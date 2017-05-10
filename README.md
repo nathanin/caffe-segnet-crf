@@ -1,13 +1,40 @@
-# Caffe segnet and CRFasRNN merger
+# Caffe SegNet and CRFasRNN merger
 
 ### Notes
 Personal work in progress. 
 
-Caffe-SegNet contributes the upsample layer, and dense image data layers. CRFasRNN contributes Meanfield layer which implements Conditional Random Fields as a series of CNN's. I used `make` to compile. `CMake` lists have yet to be updated. The tests (except noted) pass and I obtain resonable results with the demonstration CRFasRNN model. 
+System information:
+**Ubuntu 16.04:**
+'''
+$ g++ --version
+
+$ make --version
+
+$ nvcc --version
+
+$ cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
+
+'''
+
+**OS X 10.11.5:**
+'''
+$ g++ --version
+
+$ make --version
+
+$ nvcc --version
+
+$ cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
+
+'''
+
+Caffe-SegNet contributes the upsample layer, and dense image data layer. CRFasRNN contributes Meanfield layer which implements Conditional Random Fields according to their paper (below). I used `make` to compile. `CMake` lists have yet to be updated. The tests (except noted) pass and I obtain resonable results with the demonstration CRFasRNN model. 
 
 **Note that `make runtest` fails the Meanfield layer gradient checker. I observed intractably long execution time in GPU mode, and many, many fails in CPU mode.**
 
 --- 
+# Caffe-Segnet
+**Original by Alex Kendall (https://github.com/alexgkendall/caffe-segnet), with updated GPU implementation by Timo-Saemann:**
 [Caffe SegNet cuDNN5](https://github.com/TimoSaemann/caffe-segnet-cudnn5) is is a modified version of [Caffe](https://github.com/BVLC/caffe) which supports the [SegNet architecture](http://mi.eng.cam.ac.uk/projects/segnet/)
 
 As described in **SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation** Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla [http://arxiv.org/abs/1511.00561]
