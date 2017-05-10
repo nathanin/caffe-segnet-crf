@@ -1,21 +1,18 @@
 # Caffe segnet and CRFasRNN merger
+
+### Notes
 Personal work in progress. 
 
+Caffe-SegNet contributes the upsample layer, and dense image data layers. CRFasRNN contributes Meanfield layer which implements Conditional Random Fields as a series of CNN's. I used `make` to compile. `CMake` lists have yet to be updated. The tests (except noted) pass and I obtain resonable results with the demonstration CRFasRNN model. 
+
+**Note that `make runtest` fails the Meanfield layer gradient checker. I observed intractably long execution time in GPU mode, and many, many fails in CPU mode.**
+
+--- 
 [Caffe SegNet cuDNN5](https://github.com/TimoSaemann/caffe-segnet-cudnn5) is is a modified version of [Caffe](https://github.com/BVLC/caffe) which supports the [SegNet architecture](http://mi.eng.cam.ac.uk/projects/segnet/)
 
 As described in **SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation** Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla [http://arxiv.org/abs/1511.00561]
 
 Please refer to Alex Kendalls caffe-segnet for a tutorial and a guide how to use it (https://github.com/alexgkendall/caffe-segnet).
-
-Tutorial on how to compile the code:
-```
-mkdir build && cmake ../ && make all -j"$(nproc)" && make -j"$(nproc)" pycaffe
-```
-How to use the python demo code:
-Assume you download caffemodel and save it at $CAFFE_ROOT/example/crfasrnn_segmentation/
-```
-python /opt/caffe/example/crfasrnn_segmentation/crfasrnn_demo.py
-``` 
 
 # CRF-RNN for Semantic Image Segmentation
 This package contains code for the "CRF-RNN" semantic image segmentation method, published in the ICCV 2015 paper [Conditional Random Fields as Recurrent Neural Networks](http://www.robots.ox.ac.uk/~szheng/papers/CRFasRNN.pdf). This paper was initially described in an [arXiv tech report](http://arxiv.org/abs/1502.03240). The online demonstration based on this code won the Best Demo Prize at ICCV 2015. Our software is built on top of the [Caffe](http://caffe.berkeleyvision.org/) deep learning library. The current version was developed by:
