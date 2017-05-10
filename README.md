@@ -5,19 +5,31 @@ Personal work in progress.
 
 System information:
 **Ubuntu 16.04:**
-'''
+```
 $ g++ --version
+g++ (Ubuntu 5.4.0-6ubuntu1~16.04.4) 5.4.0 20160609
 
 $ make --version
+GNU Make 4.1
+Built for x86_64-pc-linux-gnu
 
 $ nvcc --version
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2016 NVIDIA Corporation
+Built on Tue_Jan_10_13:22:03_CST_2017
+Cuda compilation tools, release 8.0, V8.0.61
 
 $ cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
+#define CUDNN_MAJOR      5
+#define CUDNN_MINOR      1
+#define CUDNN_PATCHLEVEL 5
+--
+#define CUDNN_VERSION    (CUDNN_MAJOR * 1000 + CUDNN_MINOR * 100 + CUDNN_PATCHLEVEL)
 
-'''
+```
 
 **OS X 10.11.5:**
-'''
+```
 $ g++ --version
 
 $ make --version
@@ -26,7 +38,7 @@ $ nvcc --version
 
 $ cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
 
-'''
+```
 
 Caffe-SegNet contributes the upsample layer, and dense image data layer. CRFasRNN contributes Meanfield layer which implements Conditional Random Fields according to their paper (below). I used `make` to compile. `CMake` lists have yet to be updated. The tests (except noted) pass and I obtain resonable results with the demonstration CRFasRNN model. 
 
