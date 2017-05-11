@@ -1,6 +1,6 @@
 # Solver
 
-net: "/home/nathan/caffe-segnet-crf/notebooks/train-SegNet-CRFRNN.prototxt"
+net: "/Users/nathaning/software/caffe-segnet-crf/notebooks/train-SegNet-CRFRNN.prototxt"
 
 # Do not test
 test_initialization: false
@@ -8,16 +8,16 @@ test_iter: 1
 test_interval: 10000000
 
 # Learning rate policy
-base_lr: 0.001
+base_lr: 1e-4
 lr_policy: "step"
 stepsize: 5000
 gamma: 0.1
-momentum: 0.7
+momentum: 0.9
 max_iter: 20000
-weight_decay: 0.005
+weight_decay: 0.0005
 
 # Text updates and output
 display: 50
 snapshot: 2000
-snapshot_prefix: "/home/nathan/mzmo/analysis/nuclear_seg/segcrfrnn_resume_raw"
-solver_mode: GPU
+snapshot_prefix: "/Users/nathaning/databases/nuclei/pca/crfrnn_"
+solver_mode: CPU

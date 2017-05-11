@@ -1,34 +1,34 @@
 name: "SegNet-CRFRNN"
-# layer {
-#   name: "data"
-#   type: "Data"
-#   top: "data"  # 256 * 256
-#   data_param {
-#     source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/feature_lmdb"
-#     backend: LMDB
-#     batch_size: 8
-#   }
-#   # transform_param {
-#   #   scale: 0.00390625
-#   # }
-#   # include: { phase: TRAIN }
-# }
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"  # 256 * 256
+  data_param {
+    source: "/Users/nathaning/databases/nuclei/pca/seg_feature_lmdb"
+    backend: LMDB
+    batch_size: 4
+  }
+  # transform_param {
+  #   scale: 0.00390625
+  # }
+  # include: { phase: TRAIN }
+}
 
-# # Stochastic transforms like crop will break this
-# layer {
-#   name: "label"
-#   type: "Data"
-#   top: "label"
-#   data_param {
-#     source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/mask_lmdb"
-#     backend: LMDB
-#     batch_size: 8
-#   }
-#   # transform_param {
-#   #   scale: 0.00390625
-#   # }
-#   # include: { phase: TRAIN }
-# }
+# Stochastic transforms like crop will break this
+layer {
+  name: "label"
+  type: "Data"
+  top: "label"
+  data_param {
+    source: "/Users/nathaning/databases/nuclei/pca/seg_mask_lmdb"
+    backend: LMDB
+    batch_size: 4
+  }
+  # transform_param {
+  #   scale: 0.00390625
+  # }
+  # include: { phase: TRAIN }
+}
 
 #
 #layer {
@@ -54,17 +54,17 @@ name: "SegNet-CRFRNN"
 #  include: { phase: TEST }
 #}
 
-layer {
- name: "data"
- type: "DenseImageData"
- top: "data"
- top: "label"
- dense_image_data_param {
-   source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/list.txt" 
-   batch_size: 8
-   shuffle: true
- }
-}
+# layer {
+#  name: "data"
+#  type: "DenseImageData"
+#  top: "data"
+#  top: "label"
+#  dense_image_data_param {
+#    source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/list.txt" 
+#    batch_size: 8
+#    shuffle: true
+#  }
+# }
 
 layer {
   name: "norm"
@@ -302,50 +302,51 @@ layer {
 
 ###### First train with this commented
 
-layer { 
-  type: 'Split' 
-  name: 'splitting'
-  bottom: 'conv_classifier' 
-  top: 'unary' 
-  top: 'Q0'
-}
+# layer { 
+#   type: 'Split' 
+#   name: 'splitting'
+#   bottom: 'conv_classifier' 
+#   top: 'unary' 
+#   top: 'Q0'
+# }
 
-layer {
-  name: "crfrnn" #if you set name "inference1", code will load parameters from caffemodel.
-  type: "MultiStageMeanfield"
-  bottom: "unary"
-  bottom: "Q0"
-  bottom: "data"
-  top: "crfrnn"
-  param {
-    lr_mult: 10000 #learning rate for W_G
-  }
-  param {
-    lr_mult: 10000 #learning rate for W_B
-  }
-  param {
-    lr_mult: 1000 #learning rate for compatiblity transform matrix
-  }
-  multi_stage_meanfield_param {
-   num_iterations: 10
-   compatibility_mode: POTTS#Initialize the compatilibity transform matrix with a matrix whose diagonal is -1.
-   threshold: 2
-   theta_alpha: 160
-   theta_beta: 3
-   theta_gamma: 3
-   spatial_filter_weights_str: "3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3"
-   bilateral_filter_weights_str: "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5"
-  }
-}
+# layer {
+#   name: "crfrnn" #if you set name "inference1", code will load parameters from caffemodel.
+#   type: "MultiStageMeanfield"
+#   bottom: "unary"
+#   bottom: "Q0"
+#   bottom: "data"
+#   top: "crfrnn"
+#   param {
+#     lr_mult: 10000 #learning rate for W_G
+#   }
+#   param {
+#     lr_mult: 10000 #learning rate for W_B
+#   }
+#   param {
+#     lr_mult: 1000 #learning rate for compatiblity transform matrix
+#   }
+#   multi_stage_meanfield_param {
+#    num_iterations: 10
+#    compatibility_mode: POTTS#Initialize the compatilibity transform matrix with a matrix whose diagonal is -1.
+#    threshold: 2
+#    theta_alpha: 160
+#    theta_beta: 3
+#    theta_gamma: 3
+#    spatial_filter_weights_str: "3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3"
+#    bilateral_filter_weights_str: "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5"
+#   }
+# }
 
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "crfrnn"
+  bottom: "conv_classifier"
   bottom: "label"
   top: "loss"
   loss_param {
     weight_by_label_freqs: true
+    # ignore_label: 0
     class_weighting: 0.62447
     class_weighting: 2.50446
   }
@@ -353,7 +354,7 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "crfrnn"
+  bottom: "conv_classifier"
   bottom: "label"
   top: "accuracy"
   top: "per_class_accuracy"
