@@ -1,6 +1,7 @@
 # Solver
 
 net: "/home/nathan/caffe-segnet-crf/notebooks/train-SegNet-CRFRNN.prototxt"
+type: "SGD"
 
 # Do not test
 test_initialization: false
@@ -19,6 +20,6 @@ weight_decay: 0.005
 # Text updates and output
 display: 100
 snapshot: 5000
-snapshot_prefix: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/crfrnn_end2end"
+snapshot_prefix: "/home/nathan/mzmo/analysis/nuclear_seg/weights"
 solver_mode: GPU
 

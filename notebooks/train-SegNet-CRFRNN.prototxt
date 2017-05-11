@@ -4,7 +4,7 @@ layer {
   type: "Data"
   top: "data"  # 256 * 256
   data_param {
-    source: "/Users/nathaning/databases/nuclei/pca/seg_feature_lmdb"
+    source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/feature_lmdb"
     backend: LMDB
     batch_size: 4
   }
@@ -20,7 +20,7 @@ layer {
   type: "Data"
   top: "label"
   data_param {
-    source: "/Users/nathaning/databases/nuclei/pca/seg_mask_lmdb"
+    source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/mask_lmdb"
     backend: LMDB
     batch_size: 4
   }
@@ -595,22 +595,18 @@ layer {
   top: "loss"
   loss_param {
     weight_by_label_freqs: true
-<<<<<<< HEAD
-    ### Nuclei weights
-    class_weighting: 0.65
-    class_weighting: 2.345
-
     ### PCA weights
+    # ignore_label: 0
     # class_weighting: 5.215
     # class_weighting: 1.0
     # class_weighting: 2.0137
     # class_weighting: 0.9508
     # class_weighting: 0.8109
-=======
-    # ignore_label: 0
+
+    ### Nuclei weights
+    ignore_label: 0
     class_weighting: 0.62447
     class_weighting: 2.50446
->>>>>>> 1f46a6b198582f04879baafd9fc95b975a800a98
   }
 }
 layer {
