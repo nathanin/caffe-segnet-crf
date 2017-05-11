@@ -1,10 +1,50 @@
 name: "CRFRNN-VOC"
-input: "data"
-input_dim: 1
-input_dim: 3
-input_dim: 500
-input_dim: 500
-force_backward: true
+layer {
+  name: "data_rgb"
+  type: "Data"
+  top: "data"
+  data_param {
+    source: "/YOURPATH-pascal-lmdb/rgb-train"
+    backend: LMDB
+    batch_size: 1
+  }
+  include: { phase: TRAIN }
+}
+
+layer {
+  name: "data_label"
+  type: "Data"
+  top: "label"
+  data_param {
+    source: "/YOURPATH-pascal-lmdb/label-train"
+    backend: LMDB
+    batch_size: 1
+  }
+  include: { phase: TRAIN }
+}
+
+layer {
+  name: "data_rgb"
+  type: "Data"
+  top: "data"
+  data_param {
+    source: "/YOURPATH-pascal-lmdb/rgb-val"
+    backend: LMDB
+    batch_size: 1
+  }
+  include: { phase: TEST }
+}
+layer {
+  name: "data_label"
+  type: "Data"
+  top: "label"
+  data_param {
+    source: "/YOURPATH-pascal-lmdb/label-val"
+    backend: LMDB
+    batch_size: 1
+  }
+  include: { phase: TEST }
+}
 
 layer {
   name: "conv1_1"
@@ -520,17 +560,8 @@ layer {
     engine: CAFFE
   }
 }
-layer { 
-  type: "Crop" 
-  name: "crop" 
-  bottom: "score-pool4" 
-  bottom: "score2"
-  top: "score-pool4c" 
-  crop_param {
-    axis: 2
-    offset: 5
-  }
-}
+layer { type: 'Crop' name: 'crop' bottom: 'score-pool4' bottom: 'score2'
+  top: 'score-pool4c' }
 layer {
   name: "fuse"
   type: "Eltwise"
@@ -576,17 +607,8 @@ layer {
     engine: CAFFE
   }
 }
-layer { 
-  type: "Crop" 
-  name: "crop" 
-  bottom: "score-pool3" 
-  bottom: "score4"
-  top: "score-pool3c" 
-  crop_param {
-    axis: 2
-    offset: 9
-  }
-}
+layer { type: 'Crop' name: 'crop' bottom: 'score-pool3' bottom: 'score4'
+  top: 'score-pool3c' }
 layer {
   name: "fuse"
   type: "Eltwise"
@@ -606,30 +628,16 @@ layer {
     lr_mult: 0
   }
   convolution_param {
-    num_output: 21  # Number of classes
+    num_output: 21
     bias_term: false
     kernel_size: 16
     stride: 8
   }
 }
-layer { 
-  type: "Crop" 
-  name: "crop" 
-  bottom: "bigscore" 
-  bottom: "data" 
-  top: "coarse" 
-  crop_param {
-    axis: 2
-    offset: 31
-  }
-}
+layer { type: 'Crop' name: 'crop' bottom: 'bigscore' bottom: 'data' top: 'coarse' }
 
-layer { 
-  type: "Split" 
-  name: "splitting"
-  bottom: "coarse" 
-  top: "unary" 
-  top: "Q0"
+layer { type: 'Split' name: 'splitting'
+  bottom: 'coarse' top: 'unary' top: 'Q0'
 }
 
 layer {
@@ -655,8 +663,20 @@ layer {
    theta_alpha: 160
    theta_beta: 3
    theta_gamma: 3
-   spatial_filter_weights_str: "3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3"
-   bilateral_filter_weights_str: "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5"
+   spatial_filter_weight: 3
+   bilateral_filter_weight: 5
   }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "pred"
+  bottom: "label"
+  top: "loss"
+  loss_param {
+    ignore_label: 255
+    normalize: false
+  }
+  include: { phase: TRAIN }
 }
 

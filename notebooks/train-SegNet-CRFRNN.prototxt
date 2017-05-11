@@ -1,28 +1,35 @@
-name: "CRFRNN-VOC"
-#https://raw.githubusercontent.com/torrvision/caffe/e7f25fa2bdbb291a067930d60f337d305c128583/examples/segmentationcrfasrnn/TVG_CRFRNN_new_traintest.prototxt
-#layer {
-#  name: "data_rgb"
-#  type: "Data"
-#  top: "data"
-#  data_param {
-#    source: "/YOURPATH-pascal-lmdb/rgb-train"
-#    backend: LMDB
-#    batch_size: 1
-#  }
-#  include: { phase: TRAIN }
-#}
-#
-#layer {
-#  name: "data_label"
-#  type: "Data"
-#  top: "label"
-#  data_param {
-#    source: "/YOURPATH-pascal-lmdb/label-train"
-#    backend: LMDB
-#    batch_size: 1
-#  }
-#  include: { phase: TRAIN }
-#}
+name: "SegNet-CRFRNN"
+# layer {
+#   name: "data"
+#   type: "Data"
+#   top: "data"  # 256 * 256
+#   data_param {
+#     source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/feature_lmdb"
+#     backend: LMDB
+#     batch_size: 8
+#   }
+#   # transform_param {
+#   #   scale: 0.00390625
+#   # }
+#   # include: { phase: TRAIN }
+# }
+
+# # Stochastic transforms like crop will break this
+# layer {
+#   name: "label"
+#   type: "Data"
+#   top: "label"
+#   data_param {
+#     source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/mask_lmdb"
+#     backend: LMDB
+#     batch_size: 8
+#   }
+#   # transform_param {
+#   #   scale: 0.00390625
+#   # }
+#   # include: { phase: TRAIN }
+# }
+
 #
 #layer {
 #  name: "data_rgb"
@@ -33,7 +40,7 @@ name: "CRFRNN-VOC"
 #    backend: LMDB
 #    batch_size: 1
 #  }
-#  include: { phase: TEST }
+ # include: { phase: TEST }
 #}
 #layer {
 #  name: "data_label"
@@ -48,28 +55,42 @@ name: "CRFRNN-VOC"
 #}
 
 layer {
+ name: "data"
+ type: "DenseImageData"
+ top: "data"
+ top: "label"
+ dense_image_data_param {
+   source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/list.txt" 
+   batch_size: 8
+   shuffle: true
+ }
+}
+
+layer {
+  name: "norm"
+  type: "LRN"
+  bottom: "data"
+  top: "norm"
+  lrn_param {
+    local_size: 5
+    alpha: 0.0001
+    beta: 0.75
+  }
+}
+layer {
   name: "conv1"
   type: "Convolution"
   bottom: "norm"
-  top: "conv1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
+  top: "conv1" # 128 * 128
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
   convolution_param {
     num_output: 64
     kernel_size: 7
     pad: 3
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-    }
+    stride: 2
+    weight_filler { type: "msra" }
+    bias_filler { type: "constant" }
   }
 }
 layer {
@@ -78,14 +99,8 @@ layer {
   name: "conv1_bn"
   type: "BN"
   bn_param {
-  scale_filler {
-    type: "constant"
-    value: 1
-  }
-  shift_filler {
-    type: "constant"
-    value: 0.001
-  }
+  scale_filler { type: "constant" value: 1 }
+  shift_filler { type: "constant" value: 0.001 }
  }
 }
 layer {
@@ -98,7 +113,7 @@ layer {
   name: "pool1"
   type: "Pooling"
   bottom: "conv1"
-  top: "pool1"
+  top: "pool1"  # 64 * 64
   top: "pool1_mask"
   pooling_param {
     pool: MAX
@@ -110,7 +125,7 @@ layer {
   name: "conv2"
   type: "Convolution"
   bottom: "pool1"
-  top: "conv2"
+  top: "conv2"  # 32*32
   param {
     lr_mult: 1
     decay_mult: 1
@@ -120,9 +135,10 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
-    kernel_size: 7
-    pad: 3
+    num_output: 32
+    kernel_size: 4
+    stride: 2
+    pad: 1
     weight_filler {
       type: "msra"
     }
@@ -151,13 +167,13 @@ layer {
   name: "relu2"
   type: "ReLU"
   bottom: "conv2"
-  top: "conv2"
+  top: "conv2" 
 }
 layer {
   name: "pool2"
   type: "Pooling"
   bottom: "conv2"
-  top: "pool2"
+  top: "pool2" # 16* 16
   top: "pool2_mask"
   pooling_param {
     pool: MAX
@@ -165,240 +181,28 @@ layer {
     stride: 2
   }
 }
-layer {
-  name: "conv3"
-  type: "Convolution"
-  bottom: "pool2"
-  top: "conv3"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 64
-    kernel_size: 7
-    pad: 3
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-layer {
-  bottom: "conv3"
-  top: "conv3"
-  name: "conv3_bn"
-  type: "BN"
-  bn_param {
-  scale_filler {
-    type: "constant"
-    value: 1
-  }
-  shift_filler {
-    type: "constant"
-    value: 0.001
-  }
- }
-}
-layer {
-  name: "relu3"
-  type: "ReLU"
-  bottom: "conv3"
-  top: "conv3"
-}
-layer {
-  name: "pool3"
-  type: "Pooling"
-  bottom: "conv3"
-  top: "pool3"
-  top: "pool3_mask"
-  pooling_param {
-    pool: MAX
-    kernel_size: 2
-    stride: 2
-  }
-}
-layer {
-  name: "conv4"
-  type: "Convolution"
-  bottom: "pool3"
-  top: "conv4"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 64
-    kernel_size: 7
-    pad: 3
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-layer {
-  bottom: "conv4"
-  top: "conv4"
-  name: "conv4_bn"
-  type: "BN"
-  bn_param {
-  scale_filler {
-    type: "constant"
-    value: 1
-  }
-  shift_filler {
-    type: "constant"
-    value: 0.001
-  }
- }
-}
-layer {
-  name: "relu4"
-  type: "ReLU"
-  bottom: "conv4"
-  top: "conv4"
-}
-layer {
-  name: "pool4"
-  type: "Pooling"
-  bottom: "conv4"
-  top: "pool4"
-  top: "pool4_mask"
-  pooling_param {
-    pool: MAX
-    kernel_size: 2
-    stride: 2
-  }
-}
-layer {
-  name: "upsample4"
-  type: "Upsample"
-  bottom: "pool4"
-  bottom: "pool4_mask"
-  top: "upsample4"
-  upsample_param {
-    scale: 2
-    pad_out_h: true
-  }
-}
-layer {
-  name: "conv_decode4"
-  type: "Convolution"
-  bottom: "upsample4"
-  top: "conv_decode4"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 64
-    kernel_size: 7
-    pad: 3
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-layer {
-  bottom: "conv_decode4"
-  top: "conv_decode4"
-  name: "conv_decode4_bn"
-  type: "BN"
-  bn_param {
-  scale_filler {
-    type: "constant"
-    value: 1
-  }
-  shift_filler {
-    type: "constant"
-    value: 0.001
-  }
- }
-}
-layer {
-  name: "upsample3"
-  type: "Upsample"
-  bottom: "conv_decode4"
-  bottom: "pool3_mask"
-  top: "upsample3"
-  upsample_param {
-    scale: 2
-  }
-}
-layer {
-  name: "conv_decode3"
-  type: "Convolution"
-  bottom: "upsample3"
-  top: "conv_decode3"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 64
-    kernel_size: 7
-    pad: 3
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-layer {
-  bottom: "conv_decode3"
-  top: "conv_decode3"
-  name: "conv_decode3_bn"
-  type: "BN"
-  bn_param {
-  scale_filler {
-    type: "constant"
-    value: 1
-  }
-  shift_filler {
-    type: "constant"
-    value: 0.001
-  }
- }
-}
+
+# ----------------------------------------- #
+#                                           #
+#           Begin reconstruction            #
+#                                           #
+# ----------------------------------------- #
+
+
 layer {
   name: "upsample2"
   type: "Upsample"
-  bottom: "conv_decode3"
+  bottom: "pool2"
   bottom: "pool2_mask"
-  top: "upsample2"
+  top: "upsample2"  # 32*32
   upsample_param {
-    scale: 2
+    upsample_w: 32
+    upsample_h: 32
   }
 }
 layer {
   name: "conv_decode2"
-  type: "Convolution"
+  type: "Deconvolution"
   bottom: "upsample2"
   top: "conv_decode2"
   param {
@@ -411,8 +215,9 @@ layer {
   }
   convolution_param {
     num_output: 64
-    kernel_size: 7
-    pad: 3
+    kernel_size: 4
+    pad: 1
+    stride: 2
     weight_filler {
       type: "msra"
     }
@@ -423,7 +228,7 @@ layer {
 }
 layer {
   bottom: "conv_decode2"
-  top: "conv_decode2"
+  top: "conv_decode2"  # 64*64
   name: "conv_decode2_bn"
   type: "BN"
   bn_param {
@@ -442,34 +247,28 @@ layer {
   type: "Upsample"
   bottom: "conv_decode2"
   bottom: "pool1_mask"
-  top: "upsample1"
+  top: "upsample1"  # 128*128
   upsample_param {
-    scale: 2
+    upsample_w: 128
+    upsample_h: 128
   }
 }
+
+# Deconv: Strid * (Input - 1) + Kernel - 2*Pad
 layer {
   name: "conv_decode1"
-  type: "Convolution"
+  type: "Deconvolution"
   bottom: "upsample1"
   top: "conv_decode1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
   convolution_param {
     num_output: 64
-    kernel_size: 7
+    kernel_size: 8
     pad: 3
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-    }
+    stride: 2
+    weight_filler { type: "msra" }
+    bias_filler { type: "constant" }
   }
 }
 layer {
@@ -478,111 +277,54 @@ layer {
   name: "conv_decode1_bn"
   type: "BN"
   bn_param {
-  scale_filler {
-    type: "constant"
-    value: 1
-  }
-  shift_filler {
-    type: "constant"
-    value: 0.001
-  }
+  scale_filler { type: "constant" value: 1 }
+  shift_filler { type: "constant" value: 0.001 }
  }
 }
 layer {
   name: "conv_classifier"
-  type: "Convolution"
+  type: "Deconvolution"
   bottom: "conv_decode1"
   top: "conv_classifier"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
   convolution_param {
-    num_output: 11
+    num_output: 2  # Number of classes
     kernel_size: 1
-    weight_filler {
-      type: "msra"
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-
-layer {
-  name: "data"
-  type: "DenseImageData"
-  top: "data"
-  top: "label"
-  dense_image_data_param {
-    source: "/SegNet/CamVid/train.txt"  # Change this to the absolute path to your data file
-    batch_size: 4         # Change this number to a batch size that will fit on your GPU
-    shuffle: true
-  }
-}
-layer {
-  name: "norm"
-  type: "LRN"
-  bottom: "data"
-  top: "norm"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
-
-layer {
-  name: "conv1_1"
-  type: "Convolution"
-  bottom: "data"
-  top: "conv1_1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 64
-    pad: 100
-    kernel_size: 3
-    #engine: CAFFE
+    weight_filler { type: "msra"  }
+    bias_filler { type: "constant" }
   }
 }
 
 
 #layer { type: 'Crop' name: 'crop' bottom: 'bigscore' bottom: 'data' top: 'coarse' }
 
+
+###### First train with this commented
+
 layer { 
   type: 'Split' 
   name: 'splitting'
-  bottom: 'conv1_1' 
+  bottom: 'conv_classifier' 
   top: 'unary' 
   top: 'Q0'
 }
 
 layer {
-  name: "inference1"#if you set name "inference1", code will load parameters from caffemodel.
+  name: "crfrnn" #if you set name "inference1", code will load parameters from caffemodel.
   type: "MultiStageMeanfield"
   bottom: "unary"
   bottom: "Q0"
   bottom: "data"
-  top: "pred"
+  top: "crfrnn"
   param {
     lr_mult: 10000 #learning rate for W_G
   }
   param {
-  lr_mult: 10000 #learning rate for W_B
+    lr_mult: 10000 #learning rate for W_B
   }
   param {
-  lr_mult: 1000 #learning rate for compatiblity transform matrix
+    lr_mult: 1000 #learning rate for compatiblity transform matrix
   }
   multi_stage_meanfield_param {
    num_iterations: 10
@@ -591,19 +333,28 @@ layer {
    theta_alpha: 160
    theta_beta: 3
    theta_gamma: 3
-   spatial_filter_weight: 3
-   bilateral_filter_weight: 5
+   spatial_filter_weights_str: "3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3"
+   bilateral_filter_weights_str: "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5"
   }
 }
+
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "pred"
+  bottom: "crfrnn"
   bottom: "label"
   top: "loss"
   loss_param {
-    ignore_label: 255
-    normalize: false
+    weight_by_label_freqs: true
+    class_weighting: 0.62447
+    class_weighting: 2.50446
   }
-  include: { phase: TRAIN }
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "crfrnn"
+  bottom: "label"
+  top: "accuracy"
+  top: "per_class_accuracy"
 }
