@@ -1,34 +1,34 @@
 name: "SegNet-CRFRNN"
-# layer {
-#   name: "data"
-#   type: "Data"
-#   top: "data"  # 256 * 256
-#   data_param {
-#     source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/feature_lmdb"
-#     backend: LMDB
-#     batch_size: 8
-#   }
-#   # transform_param {
-#   #   scale: 0.00390625
-#   # }
-#   # include: { phase: TRAIN }
-# }
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"  # 256 * 256
+  data_param {
+    source: "/Users/nathaning/databases/nuclei/pca/seg_feature_lmdb"
+    backend: LMDB
+    batch_size: 4
+  }
+  # transform_param {
+  #   scale: 0.00390625
+  # }
+  # include: { phase: TRAIN }
+}
 
-# # Stochastic transforms like crop will break this
-# layer {
-#   name: "label"
-#   type: "Data"
-#   top: "label"
-#   data_param {
-#     source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/mask_lmdb"
-#     backend: LMDB
-#     batch_size: 8
-#   }
-#   # transform_param {
-#   #   scale: 0.00390625
-#   # }
-#   # include: { phase: TRAIN }
-# }
+# Stochastic transforms like crop will break this
+layer {
+  name: "label"
+  type: "Data"
+  top: "label"
+  data_param {
+    source: "/Users/nathaning/databases/nuclei/pca/seg_mask_lmdb"
+    backend: LMDB
+    batch_size: 4
+  }
+  # transform_param {
+  #   scale: 0.00390625
+  # }
+  # include: { phase: TRAIN }
+}
 
 #
 #layer {
@@ -54,17 +54,17 @@ name: "SegNet-CRFRNN"
 #  include: { phase: TEST }
 #}
 
-layer {
- name: "data"
- type: "DenseImageData"
- top: "data"
- top: "label"
- dense_image_data_param {
-   source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/list.txt" 
-   batch_size: 8
-   shuffle: true
- }
-}
+# layer {
+#  name: "data"
+#  type: "DenseImageData"
+#  top: "data"
+#  top: "label"
+#  dense_image_data_param {
+#    source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/list.txt" 
+#    batch_size: 8
+#    shuffle: true
+#  }
+# }
 
 layer {
   name: "norm"
@@ -595,6 +595,7 @@ layer {
   top: "loss"
   loss_param {
     weight_by_label_freqs: true
+<<<<<<< HEAD
     ### Nuclei weights
     class_weighting: 0.65
     class_weighting: 2.345
@@ -605,6 +606,11 @@ layer {
     # class_weighting: 2.0137
     # class_weighting: 0.9508
     # class_weighting: 0.8109
+=======
+    # ignore_label: 0
+    class_weighting: 0.62447
+    class_weighting: 2.50446
+>>>>>>> 1f46a6b198582f04879baafd9fc95b975a800a98
   }
 }
 layer {
