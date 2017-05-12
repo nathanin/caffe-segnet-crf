@@ -5,7 +5,8 @@ from skimage.io import ImageCollection
 from argparse import ArgumentParser
 
 
-caffe_root = '/home/nathan/caffe-segnet-crf/' 
+# caffe_root = '/home/nathan/caffe-segnet-crf/' 
+caffe_root = '/Users/nathaning/software/caffe-segnet-crf/'
 import sys
 sys.path.insert(0, caffe_root + 'python')
 
@@ -176,9 +177,12 @@ def run(out_dir, train_model, weights, out_name):
 
     # use testable net to calculate BN layer stats
     print "Calculate BN stats..."
-    train_ims, train_labs = extract_dataset(testable_msg)
-    train_size = len(train_ims)
-    minibatch_size = testable_msg.layer[0].dense_image_data_param.batch_size
+    # train_ims, train_labs = extract_dataset(testable_msg)
+    # train_size = len(train_ims)
+    # minibatch_size = testable_msg.layer[0].dense_image_data_param.batch_size
+    # minibatch_size = testable_msg.layer[0].data_
+    train_size = 4000
+    minibatch_size = 4
     num_iterations = train_size // minibatch_size + train_size % minibatch_size
     
     # For some reason changing this breaks the normalization:
