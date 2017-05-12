@@ -6,7 +6,7 @@ layer {
   data_param {
     source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/feature_lmdb"
     backend: LMDB
-    batch_size: 1
+    batch_size: 16
   }
   include: { phase: TRAIN }
 }
@@ -33,7 +33,7 @@ layer {
  data_param {
    source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/feature_test_lmdb"
    backend: LMDB
-   batch_size: 16
+   batch_size: 1
  }
  include: { phase: TEST }
 }
