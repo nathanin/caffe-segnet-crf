@@ -1,0 +1,25 @@
+# Solver
+
+net: "/Users/nathaning/software/caffe-segnet-crf/notebooks/models/train-segnet-CRFRNN-small-128x128.prototxt"
+type: "SGD"
+
+# Do not test
+# test_initialization: false
+test_iter: 719
+test_interval: 2500
+
+# Learning rate policy
+base_lr: 1e-11
+lr_policy: "step"
+stepsize: 5000
+gamma: 0.01
+momentum: 0.9
+max_iter: 15000
+weight_decay: 0.0005
+
+# Text updates and output
+display: 500
+snapshot: 5000
+snapshot_prefix: "/Users/nathaning/databases/nuclei/crfrnn"
+solver_mode: GPU
+

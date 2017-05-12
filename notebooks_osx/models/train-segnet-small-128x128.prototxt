@@ -4,9 +4,9 @@ layer {
   type: "Data"
   top: "data"  # 128*128
   data_param {
-    source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/feature_lmdb"
+    source: "/Users/nathaning/databases/nuclei/feature_lmdb"
     backend: LMDB
-    batch_size: 1
+    batch_size: 4
   }
   include: { phase: TRAIN }
 }
@@ -17,9 +17,9 @@ layer {
   type: "Data"
   top: "label"
   data_param {
-    source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/mask_lmdb"
+    source: "/Users/nathaning/databases/nuclei/mask_lmdb"
     backend: LMDB
-    batch_size: 1
+    batch_size: 4
   }
 
   include: { phase: TRAIN }
@@ -31,7 +31,7 @@ layer {
  type: "Data"
  top: "data"
  data_param {
-   source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/feature_test_lmdb"
+   source: "/Users/nathaning/databases/nuclei/feature_test_lmdb"
    backend: LMDB
    batch_size: 1
  }
@@ -42,7 +42,7 @@ layer {
  type: "Data"
  top: "label"
  data_param {
-   source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/mask_test_lmdb"
+   source: "/Users/nathaning/databases/nuclei/mask_test_lmdb"
    backend: LMDB
    batch_size: 1
  }
@@ -77,7 +77,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 8
+    num_output: 12
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -140,7 +140,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 8
+    num_output: 12
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -215,7 +215,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 8
+    num_output: 12
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -272,7 +272,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 8
+    num_output: 12
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -327,7 +327,7 @@ layer {
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "conv_decode1"
+  bottom: "conv_classifier"
   bottom: "label"
   top: "loss"
   loss_param {
@@ -350,7 +350,7 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "conv_decode1"
+  bottom: "conv_classifier"
   bottom: "label"
   top: "accuracy"
   top: "per_class_accuracy"
