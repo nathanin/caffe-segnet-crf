@@ -40,6 +40,14 @@ $ cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
 
 ```
 
+Pycaffe imporvement to reveal the SGDSolver's ApplyUpdate() function. The forward-backward-update pass can be called like:
+
+```
+solver.net.forward()  
+solver.net.backward()  # Calculate diff
+solver.update()  # change the weights
+```
+
 Caffe-SegNet contributes the upsample layer, batch normalization, and dense image data layer. CRFasRNN contributes Meanfield layer which implements Conditional Random Fields according to their paper (below). I used `make` to compile. `CMake` lists have yet to be updated. All I did was clone SegNet from TimoSaemann's repo (below), and pull in CRFasRNN most up-to-date branch with the factored out layer headers. I have rewritten the original `DenseImageData` layer to work with the updated layer read/write functions. The tests (except noted) pass and I obtain resonable results with the demonstration CRFasRNN model. 
 
 

@@ -1,17 +1,17 @@
 # Solver
 
-net: "/home/nathan/caffe-segnet-crf/notebooks/train-SegNet-CRFRNN.prototxt"
+net: "/home/nathan/caffe-segnet-crf/notebooks/train-SegNet-CRFRNN-128x128.prototxt"
 type: "SGD"
 
 # Do not test
-test_initialization: false
-test_iter: 1
-test_interval: 10000000
+# test_initialization: false
+test_iter: 719
+test_interval: 2500
 
 # Learning rate policy
-base_lr: 1e-4
+base_lr: 1e-9
 lr_policy: "step"
-stepsize: 5000
+stepsize: 15000
 gamma: 0.1
 momentum: 0.9
 max_iter: 50000
@@ -20,6 +20,6 @@ weight_decay: 0.005
 # Text updates and output
 display: 100
 snapshot: 5000
-snapshot_prefix: "/home/nathan/mzmo/analysis/nuclear_seg/weights"
+snapshot_prefix: "/home/nathan/mzmo/analysis/nuclear_seg/weights/finetune_crfrnn"
 solver_mode: GPU
 
