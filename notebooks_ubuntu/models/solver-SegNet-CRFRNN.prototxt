@@ -1,0 +1,25 @@
+# Solver
+
+net: "/home/nathan/caffe-segnet-crf/notebooks_ubuntu/models/train-SegNet-CRFRNN-128x128.prototxt"
+type: "SGD"
+
+# Do not test
+# test_initialization: false
+test_iter: 79
+test_interval: 1000
+
+# Learning rate policy
+base_lr: 1e-9
+lr_policy: "step"
+stepsize: 3000
+gamma: 0.1
+momentum: 0.9
+max_iter: 15000
+weight_decay: 0.0005
+
+# Text updates and output
+display: 100
+snapshot: 5000
+snapshot_prefix: "/home/nathan/histo-seg/semantic-pca/weights/segnet-crfrnn/crfrnn"
+solver_mode: GPU
+
