@@ -4,22 +4,22 @@ net: "/home/nathan/caffe-segnet-crf/notebooks_ubuntu/models/train-SegNet.prototx
 type: "SGD"
 
 # Do not test
-# test_initialization: false
+test_initialization: false
 test_iter: 42
-test_interval: 1500
+test_interval: 1000000
 
 # Learning rate policy
-base_lr: 1e-4
+base_lr: 1e-3
 lr_policy: "step"
 stepsize: 5000
 gamma: 0.1
 momentum: 0.9
-max_iter: 18000
+max_iter: 75000
 weight_decay: 0.0005
 
 # Text updates and output
-display: 100
-snapshot: 6000
-snapshot_prefix: "/home/nathan/histo-seg/semantic-pca/weights/segnet-crfrnn/segnet"
+display: 250
+snapshot: 15000
+snapshot_prefix: "/home/nathan/histo-seg/semantic-ccrcc/weights/segnet-crfrnn/segnet"
 solver_mode: GPU
 

@@ -11,7 +11,7 @@ layer {
   type: "Data"
   top: "data"  # 128*128
   data_param {
-    source: "/home/nathan/histo-seg/semantic-pca/data/db/feature_lmdb"
+    source: "/home/nathan/histo-seg/semantic-ccrcc/data/db/feature_lmdb"
     backend: LMDB
     batch_size: 1
   }
@@ -24,7 +24,7 @@ layer {
   type: "Data"
   top: "label"
   data_param {
-    source: "/home/nathan/histo-seg/semantic-pca/data/db/mask_lmdb"
+    source: "/home/nathan/histo-seg/semantic-ccrcc/data/db/feature_lmdb"
     backend: LMDB
     batch_size: 1 
   }
@@ -37,36 +37,34 @@ layer {
 #                                      #
 # ------------------------------------ #
 
-layer {
- name: "data_rgb"
- type: "Data"
- top: "data"
- data_param {
-   source: "/home/nathan/histo-seg/semantic-pca/data/db/feature_test_lmdb"
-   backend: LMDB
-   batch_size: 1
- }
- include: { phase: TEST }
-}
-layer {
- name: "data_label"
- type: "Data"
- top: "label"
- data_param {
-   source: "/home/nathan/histo-seg/semantic-pca/data/db/mask_test_lmdb"
-   backend: LMDB
-   batch_size: 1
- }
- include: { phase: TEST }
-}
+# layer {
+#  name: "data_rgb"
+#  type: "Data"
+#  top: "data"
+#  data_param {
+#    source: "/home/nathan/histo-seg/semantic-pca/data/db/feature_test_lmdb"
+#    backend: LMDB
+#    batch_size: 1
+#  }
+#  include: { phase: TEST }
+# }
+# layer {
+#  name: "data_label"
+#  type: "Data"
+#  top: "label"
+#  data_param {
+#    source: "/home/nathan/histo-seg/semantic-pca/data/db/mask_test_lmdb"
+#    backend: LMDB
+#    batch_size: 1
+#  }
+#  include: { phase: TEST }
+# }
 
 # ------------------------------------ #
 #                                      #
 #               Encoding               #
 #                                      #
 # ------------------------------------ #
-
-
 layer {
   name: "norm"
   type: "LRN"
@@ -78,8 +76,6 @@ layer {
     beta: 0.75
   }
 }
-
-# 128x128
 layer {
   name: "conv1"
   type: "Convolution"
@@ -94,7 +90,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 4
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -127,8 +123,6 @@ layer {
   bottom: "conv1"
   top: "conv1"
 }
-
-# 1/2
 layer {
   name: "pool1"
   type: "Pooling"
@@ -141,8 +135,6 @@ layer {
     stride: 2
   }
 }
-
-# 64*64
 layer {
   name: "conv2"
   type: "Convolution"
@@ -157,7 +149,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 8
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -190,8 +182,6 @@ layer {
   bottom: "conv2"
   top: "conv2"
 }
-
-# 32*32
 layer {
   name: "pool2"
   type: "Pooling"
@@ -204,8 +194,6 @@ layer {
     stride: 2
   }
 }
-
-# 32*32
 layer {
   name: "conv3"
   type: "Convolution"
@@ -220,7 +208,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 16
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -253,8 +241,6 @@ layer {
   bottom: "conv3"
   top: "conv3"
 }
-
-# 16*16
 layer {
   name: "pool3"
   type: "Pooling"
@@ -267,8 +253,6 @@ layer {
     stride: 2
   }
 }
-
-# 32*32
 layer {
   name: "conv4"
   type: "Convolution"
@@ -283,7 +267,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 32
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -316,8 +300,6 @@ layer {
   bottom: "conv4"
   top: "conv4"
 }
-
-# 16*16
 layer {
   name: "pool4"
   type: "Pooling"
@@ -330,15 +312,6 @@ layer {
     stride: 2
   }
 }
-
-
-
-# ------------------------------------ #
-#                                      #
-#               Decoding               #
-#                                      #
-# ------------------------------------ #
-
 layer {
   name: "upsample4"
   type: "Upsample"
@@ -346,9 +319,8 @@ layer {
   bottom: "pool4_mask"
   top: "upsample4"
   upsample_param {
-    scale:2 
-    # upsample_h:32
-    # upsample_w:32
+    scale: 2
+    pad_out_h: true
   }
 }
 layer {
@@ -365,7 +337,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 16
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -392,9 +364,6 @@ layer {
   }
  }
 }
-
-
-# 32*32
 layer {
   name: "upsample3"
   type: "Upsample"
@@ -402,9 +371,7 @@ layer {
   bottom: "pool3_mask"
   top: "upsample3"
   upsample_param {
-    scale:2 
-    # upsample_h:32
-    # upsample_w:32
+    scale: 2
   }
 }
 layer {
@@ -421,7 +388,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 8
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -448,8 +415,6 @@ layer {
   }
  }
 }
-
-# 64*64
 layer {
   name: "upsample2"
   type: "Upsample"
@@ -458,8 +423,6 @@ layer {
   top: "upsample2"
   upsample_param {
     scale: 2
-    # upsample_h:64
-    # upsample_w:64
   }
 }
 layer {
@@ -476,7 +439,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 4
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -503,8 +466,6 @@ layer {
   }
  }
 }
-
-# 128*128
 layer {
   name: "upsample1"
   type: "Upsample"
@@ -513,12 +474,8 @@ layer {
   top: "upsample1"
   upsample_param {
     scale: 2
-    # upsample_h:128
-    # upsample_w:128
   }
 }
-
-# ???????
 layer {
   name: "conv_decode1"
   type: "Convolution"
@@ -533,7 +490,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 4
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -574,7 +531,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 2
+    num_output: 11
     kernel_size: 1
     weight_filler {
       type: "msra"
@@ -586,8 +543,7 @@ layer {
 }
 
 
-###### First train with this commented
-
+###### First train the layers above here
 layer { 
   type: 'Split' 
   name: 'splitting'

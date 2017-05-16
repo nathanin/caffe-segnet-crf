@@ -15,4 +15,4 @@ $cf/caffe train \
 
 $cf/caffe train \
 --solver ./models/solver-SegNet-CRFRNN.prototxt \
---weights /home/nathan/histo-seg/semantic-pca/weights/segnet-crfrnn/segnet_iter_18000.caffemodel
+--weights /home/nathan/histo-seg/semantic-ccrcc/weights/segnet-crfrnn/segnet_iter_75000.caffemodel
