@@ -40,7 +40,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -103,7 +103,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -166,7 +166,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -360,7 +360,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -415,7 +415,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -472,7 +472,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -513,7 +513,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 2
+    num_output: 5
     kernel_size: 1
     weight_filler {
       type: "msra"

@@ -1,7 +1,9 @@
 # Caffe SegNet and CRFasRNN merger
 
 ### Notes
-Personal work in progress. 
+Work in progress. This development is for research purposes only. See our publications:
+* I'd put pubs here- IF I HAD ANY
+
 
 System information:
 **Ubuntu 16.04:**
@@ -55,8 +57,8 @@ Caffe-SegNet contributes the upsample layer, batch normalization, and dense imag
 
 --- 
 # Caffe-Segnet
-**Original by Alex Kendall (https://github.com/alexgkendall/caffe-segnet), with updated GPU implementation by Timo-Saemann:**
-[Caffe SegNet cuDNN5](https://github.com/TimoSaemann/caffe-segnet-cudnn5) is is a modified version of [Caffe](https://github.com/BVLC/caffe) which supports the [SegNet architecture](http://mi.eng.cam.ac.uk/projects/segnet/)
+**Original by Alex Kendall with updated GPU implementation by Timo-Saemann:**
+[Caffe SegNet cuDNN5](https://github.com/TimoSaemann/caffe-segnet-cudnn5) is a modified version of [Caffe](https://github.com/BVLC/caffe) which supports the [SegNet architecture](http://mi.eng.cam.ac.uk/projects/segnet/)
 
 As described in **SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation** Vijay Badrinarayanan, Alex Kendall and Roberto Cipolla [http://arxiv.org/abs/1511.00561]
 
@@ -128,24 +130,36 @@ Alex Kendall, Vijay Badrinarayanan and Roberto Cipolla "Bayesian SegNet: Model U
 
 ```
 @inproceedings{crfasrnn_ICCV2015,
-    author = {Shuai Zheng and Sadeep Jayasumana and Bernardino Romera-Paredes and Vibhav Vineet and
-    Zhizhong Su and Dalong Du and Chang Huang and Philip H. S. Torr},
-    title  = {Conditional Random Fields as Recurrent Neural Networks},
-    booktitle = {International Conference on Computer Vision (ICCV)},
-    year   = {2015}
+  author = {Shuai Zheng and Sadeep Jayasumana and Bernardino Romera-Paredes and Vibhav Vineet and
+  Zhizhong Su and Dalong Du and Chang Huang and Philip H. S. Torr},
+  title  = {Conditional Random Fields as Recurrent Neural Networks},
+  booktitle = {International Conference on Computer Vision (ICCV)},
+  year   = {2015}
 }
-```
-```
+
 @inproceedings{higherordercrf_ECCV2016,
-    author = {Anurag Arnab and Sadeep Jayasumana and Shuai Zheng and Philip H. S. Torr},
-    title  = {Higher Order Conditional Random Fields in Deep Neural Networks},
-    booktitle = {European Conference on Computer Vision (ECCV)},
-    year   = {2016}
+  author = {Anurag Arnab and Sadeep Jayasumana and Shuai Zheng and Philip H. S. Torr},
+  title  = {Higher Order Conditional Random Fields in Deep Neural Networks},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year   = {2016}
+}
+
+@article{jia2014caffe,
+  Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
+  Journal = {arXiv preprint arXiv:1408.5093},
+  Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
+  Year = {2014}
 }
 ```
 
-
-## License
-
+##???
+## Caffe SegNet License
 This extension to the Caffe library is released under a creative commons license which allows for personal and research use only. For a commercial license please contact the authors. You can view a license summary here:
 http://creativecommons.org/licenses/by-nc/4.0/
+
+## Original Caffe License
+Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
+The BAIR/BVLC reference models are released for unrestricted use.
+
+## Contact
+Please address questions and comments to ing.nathany@gmail.com

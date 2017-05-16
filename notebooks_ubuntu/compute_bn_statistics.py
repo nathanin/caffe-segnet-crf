@@ -167,6 +167,7 @@ def run(out_dir, train_model, weights, out_name):
     if not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
     print "Building BN calc net..."
+    # Edit the the model definition prototxt
     testable_msg = make_testable(args.train_model)
     BN_calc_path = os.path.join(
         args.out_dir, '__for_calculating_BN_stats_' + os.path.basename(args.train_model)

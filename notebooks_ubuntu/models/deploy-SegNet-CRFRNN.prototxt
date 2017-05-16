@@ -7,7 +7,7 @@ layer {
     shape: { 
       dim: 1
       dim: 3 
-      dim: 512 
+      dim: 512
       dim: 512 
     }
   }
@@ -40,7 +40,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -103,7 +103,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -166,7 +166,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -214,125 +214,6 @@ layer {
   }
 }
 
-# # 16*16
-# layer {
-#   name: "conv4"
-#   type: "Convolution"
-#   bottom: "pool3"
-#   top: "conv4"
-#   param {
-#     lr_mult: 1
-#     decay_mult: 1
-#   }
-#   param {
-#     lr_mult: 2
-#     decay_mult: 0
-#   }
-#   convolution_param {
-#     num_output: 64
-#     kernel_size: 7
-#     pad: 3
-#     weight_filler {
-#       type: "msra"
-#     }
-#     bias_filler {
-#       type: "constant"
-#     }
-#   }
-# }
-# layer {
-#   bottom: "conv4"
-#   top: "conv4"
-#   name: "conv4_bn"
-#   type: "BN"
-#   bn_param {
-#   scale_filler {
-#     type: "constant"
-#     value: 1
-#   }
-#   shift_filler {
-#     type: "constant"
-#     value: 0.001
-#   }
-#  }
-# }
-# layer {
-#   name: "relu4"
-#   type: "ReLU"
-#   bottom: "conv4"
-#   top: "conv4"
-# }
-
-# # 8*8
-# layer {
-#   name: "pool4"
-#   type: "Pooling"
-#   bottom: "conv4"
-#   top: "pool4"
-#   top: "pool4_mask"
-#   pooling_param {
-#     pool: MAX
-#     kernel_size: 2
-#     stride: 2
-#   }
-# }
-
-# # 16*16
-# layer {
-#   name: "upsample4"
-#   type: "Upsample"
-#   bottom: "pool4"
-#   bottom: "pool4_mask"
-#   top: "upsample4"
-#   upsample_param {
-#     upsample_h:16
-#     upsample_w:16
-#   }
-# }
-
-# # 16*16
-# layer {
-#   name: "conv_decode4"
-#   type: "Convolution"
-#   bottom: "upsample4"
-#   top: "conv_decode4"
-#   param {
-#     lr_mult: 1
-#     decay_mult: 1
-#   }
-#   param {
-#     lr_mult: 2
-#     decay_mult: 0
-#   }
-#   convolution_param {
-#     num_output: 64
-#     kernel_size: 7
-#     pad: 3
-#     weight_filler {
-#       type: "msra"
-#     }
-#     bias_filler {
-#       type: "constant"
-#     }
-#   }
-# }
-# layer {
-#   bottom: "conv_decode4"
-#   top: "conv_decode4"
-#   name: "conv_decode4_bn"
-#   type: "BN"
-#   bn_param {
-#   scale_filler {
-#     type: "constant"
-#     value: 1
-#   }
-#   shift_filler {
-#     type: "constant"
-#     value: 0.001
-#   }
-#  }
-# }
-
 # 32*32
 layer {
   name: "upsample3"
@@ -360,7 +241,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -415,7 +296,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -472,7 +353,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -513,7 +394,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 2
+    num_output: 5
     kernel_size: 1
     weight_filler {
       type: "msra"
@@ -560,7 +441,7 @@ layer {
    theta_alpha: 160
    theta_beta: 3
    theta_gamma: 3
-   spatial_filter_weights_str: "1 5"
-   bilateral_filter_weights_str: "5 3"
+   spatial_filter_weights_str: "1 1 1 1 1"
+   bilateral_filter_weights_str: "1 1 1 1 1"
   }
 }

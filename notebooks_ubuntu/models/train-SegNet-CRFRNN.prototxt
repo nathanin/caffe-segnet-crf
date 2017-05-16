@@ -1,17 +1,21 @@
-name: "SegNet-CRFRNN"
+# ------------------------------------ #
+#                                      #
+#             Train LMDB               #
+#                                      #
+# ------------------------------------ #
+
+
+name: "SegNet"
 layer {
   name: "data"
   type: "Data"
-  top: "data"  # 256 * 256
+  top: "data"  # 128*128
   data_param {
-    source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/feature_lmdb"
+    source: "/home/nathan/histo-seg/semantic-pca/data/db/feature_lmdb"
     backend: LMDB
-    batch_size: 4
+    batch_size: 1
   }
-  # transform_param {
-  #   scale: 0.00390625
-  # }
-  # include: { phase: TRAIN }
+  include: { phase: TRAIN }
 }
 
 # Stochastic transforms like crop will break this
@@ -20,51 +24,48 @@ layer {
   type: "Data"
   top: "label"
   data_param {
-    source: "/home/nathan/mzmo/data/nuclei/nuclei_seg_0.1/mask_lmdb"
+    source: "/home/nathan/histo-seg/semantic-pca/data/db/mask_lmdb"
     backend: LMDB
-    batch_size: 4
+    batch_size: 1 
   }
-  # transform_param {
-  #   scale: 0.00390625
-  # }
-  # include: { phase: TRAIN }
+  include: { phase: TRAIN }
 }
 
-#
-#layer {
-#  name: "data_rgb"
-#  type: "Data"
-#  top: "data"
-#  data_param {
-#    source: "/YOURPATH-pascal-lmdb/rgb-val"
-#    backend: LMDB
-#    batch_size: 1
-#  }
- # include: { phase: TEST }
-#}
-#layer {
-#  name: "data_label"
-#  type: "Data"
-#  top: "label"
-#  data_param {
-#    source: "/YOURPATH-pascal-lmdb/label-val"
-#    backend: LMDB
-#    batch_size: 1
-#  }
-#  include: { phase: TEST }
-#}
+# ------------------------------------ #
+#                                      #
+#              Test LMDB               #
+#                                      #
+# ------------------------------------ #
 
-# layer {
-#  name: "data"
-#  type: "DenseImageData"
-#  top: "data"
-#  top: "label"
-#  dense_image_data_param {
-#    source: "/home/nathan/mzmo/data/nuclei/seg_nuclei_0.1/list.txt" 
-#    batch_size: 8
-#    shuffle: true
-#  }
-# }
+layer {
+ name: "data_rgb"
+ type: "Data"
+ top: "data"
+ data_param {
+   source: "/home/nathan/histo-seg/semantic-pca/data/db/feature_test_lmdb"
+   backend: LMDB
+   batch_size: 1
+ }
+ include: { phase: TEST }
+}
+layer {
+ name: "data_label"
+ type: "Data"
+ top: "label"
+ data_param {
+   source: "/home/nathan/histo-seg/semantic-pca/data/db/mask_test_lmdb"
+   backend: LMDB
+   batch_size: 1
+ }
+ include: { phase: TEST }
+}
+
+# ------------------------------------ #
+#                                      #
+#               Encoding               #
+#                                      #
+# ------------------------------------ #
+
 
 layer {
   name: "norm"
@@ -77,6 +78,8 @@ layer {
     beta: 0.75
   }
 }
+
+# 128x128
 layer {
   name: "conv1"
   type: "Convolution"
@@ -91,7 +94,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 4
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -124,6 +127,8 @@ layer {
   bottom: "conv1"
   top: "conv1"
 }
+
+# 1/2
 layer {
   name: "pool1"
   type: "Pooling"
@@ -136,6 +141,8 @@ layer {
     stride: 2
   }
 }
+
+# 64*64
 layer {
   name: "conv2"
   type: "Convolution"
@@ -150,7 +157,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 8
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -183,6 +190,8 @@ layer {
   bottom: "conv2"
   top: "conv2"
 }
+
+# 32*32
 layer {
   name: "pool2"
   type: "Pooling"
@@ -195,6 +204,8 @@ layer {
     stride: 2
   }
 }
+
+# 32*32
 layer {
   name: "conv3"
   type: "Convolution"
@@ -209,7 +220,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -242,6 +253,8 @@ layer {
   bottom: "conv3"
   top: "conv3"
 }
+
+# 16*16
 layer {
   name: "pool3"
   type: "Pooling"
@@ -254,6 +267,8 @@ layer {
     stride: 2
   }
 }
+
+# 32*32
 layer {
   name: "conv4"
   type: "Convolution"
@@ -268,7 +283,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 32
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -301,6 +316,8 @@ layer {
   bottom: "conv4"
   top: "conv4"
 }
+
+# 16*16
 layer {
   name: "pool4"
   type: "Pooling"
@@ -313,6 +330,15 @@ layer {
     stride: 2
   }
 }
+
+
+
+# ------------------------------------ #
+#                                      #
+#               Decoding               #
+#                                      #
+# ------------------------------------ #
+
 layer {
   name: "upsample4"
   type: "Upsample"
@@ -320,9 +346,9 @@ layer {
   bottom: "pool4_mask"
   top: "upsample4"
   upsample_param {
-    scale: 2
-    upsample_h:32
-    upsample_w:32
+    scale:2 
+    # upsample_h:32
+    # upsample_w:32
   }
 }
 layer {
@@ -339,7 +365,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 16
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -366,6 +392,9 @@ layer {
   }
  }
 }
+
+
+# 32*32
 layer {
   name: "upsample3"
   type: "Upsample"
@@ -373,7 +402,9 @@ layer {
   bottom: "pool3_mask"
   top: "upsample3"
   upsample_param {
-    scale: 2
+    scale:2 
+    # upsample_h:32
+    # upsample_w:32
   }
 }
 layer {
@@ -390,7 +421,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 8
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -417,6 +448,8 @@ layer {
   }
  }
 }
+
+# 64*64
 layer {
   name: "upsample2"
   type: "Upsample"
@@ -425,6 +458,8 @@ layer {
   top: "upsample2"
   upsample_param {
     scale: 2
+    # upsample_h:64
+    # upsample_w:64
   }
 }
 layer {
@@ -441,7 +476,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 4
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -468,6 +503,8 @@ layer {
   }
  }
 }
+
+# 128*128
 layer {
   name: "upsample1"
   type: "Upsample"
@@ -476,10 +513,12 @@ layer {
   top: "upsample1"
   upsample_param {
     scale: 2
-    upsample_h:256
-    upsample_w:256
+    # upsample_h:128
+    # upsample_w:128
   }
 }
+
+# ???????
 layer {
   name: "conv_decode1"
   type: "Convolution"
@@ -494,7 +533,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
+    num_output: 4
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -546,73 +585,77 @@ layer {
   }
 }
 
-#layer { type: 'Crop' name: 'crop' bottom: 'bigscore' bottom: 'data' top: 'coarse' }
-
 
 ###### First train with this commented
 
-# layer { 
-#   type: 'Split' 
-#   name: 'splitting'
-#   bottom: 'conv_classifier' 
-#   top: 'unary' 
-#   top: 'Q0'
-# }
+layer { 
+  type: 'Split' 
+  name: 'splitting'
+  bottom: 'conv_classifier' 
+  top: 'unary' 
+  top: 'Q0'
+}
 
-# layer {
-#   name: "crfrnn" #if you set name "inference1", code will load parameters from caffemodel.
-#   type: "MultiStageMeanfield"
-#   bottom: "unary"
-#   bottom: "Q0"
-#   bottom: "data"
-#   top: "crfrnn"
-#   param {
-#     lr_mult: 10000 #learning rate for W_G
-#   }
-#   param {
-#     lr_mult: 10000 #learning rate for W_B
-#   }
-#   param {
-#     lr_mult: 1000 #learning rate for compatiblity transform matrix
-#   }
-#   multi_stage_meanfield_param {
-#    num_iterations: 10
-#    compatibility_mode: POTTS#Initialize the compatilibity transform matrix with a matrix whose diagonal is -1.
-#    threshold: 2
-#    theta_alpha: 160
-#    theta_beta: 3
-#    theta_gamma: 3
-#    spatial_filter_weights_str: "3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3"
-#    bilateral_filter_weights_str: "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5"
-#   }
-# }
+layer {
+  name: "crfrnn" #if you set name "inference1", code will load parameters from caffemodel.
+  type: "MultiStageMeanfield"
+  bottom: "unary"
+  bottom: "Q0"
+  bottom: "data"
+  top: "crfrnn"
+  param {
+    lr_mult: 10000 #learning rate for W_G
+  }
+  param {
+    lr_mult: 10000 #learning rate for W_B
+  }
+  param {
+    lr_mult: 1000 #learning rate for compatiblity transform matrix
+  }
+  multi_stage_meanfield_param {
+   num_iterations: 3
+   compatibility_mode: POTTS#Initialize the compatilibity transform matrix with a matrix whose diagonal is -1.
+   threshold: 2
+   theta_alpha: 160
+   theta_beta: 3
+   theta_gamma: 3
+   spatial_filter_weights_str: "3 3"
+   bilateral_filter_weights_str: "3 3"
+  }
+}
 
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "conv_classifier"
+  bottom: "crfrnn"
   bottom: "label"
   top: "loss"
   loss_param {
+    normalize: true
     weight_by_label_freqs: true
     ### PCA weights
-    # ignore_label: 0
     # class_weighting: 5.215
     # class_weighting: 1.0
     # class_weighting: 2.0137
     # class_weighting: 0.9508
     # class_weighting: 0.8109
+    # ignore_label: 3
+
+    ### PCA Stroma - Ep weights
+    ### Iffy, because it's highly dependent on the frame
+    class_weighting: 1.0412  # Epithielium
+    class_weighting: 0.9608  # Stroma
 
     ### Nuclei weights
-    ignore_label: 0
-    class_weighting: 0.62447
-    class_weighting: 2.50446
+    # ignore_label: 0
+    # class_weighting: 0.62447
+    # class_weighting: 2.50446
   }
 }
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "conv_classifier"
+  bottom: "crfrnn"
   bottom: "label"
   top: "accuracy"
   top: "per_class_accuracy"
