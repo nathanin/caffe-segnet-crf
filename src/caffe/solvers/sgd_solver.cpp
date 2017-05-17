@@ -113,6 +113,9 @@ void SGDSolver<Dtype>::ApplyUpdate() {
     ComputeUpdateValue(param_id, rate);
   }
   this->net_->Update();
+
+  // Moved from base Solver class into here.. Make sure to comment the other one
+  // ++this->iter_;
 }
 
 template <typename Dtype>
