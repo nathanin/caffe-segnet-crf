@@ -15,7 +15,7 @@ layer {
     backend: LMDB
     batch_size: 1
   }
-  include: { phase: TRAIN }
+  # include: { phase: TRAIN }
 }
 
 # Stochastic transforms like crop will break this
@@ -24,11 +24,11 @@ layer {
   type: "Data"
   top: "label"
   data_param {
-    source: "/home/nathan/histo-seg/semantic-ccrcc/data/db/feature_lmdb"
+    source: "/home/nathan/histo-seg/semantic-ccrcc/data/db/mask_lmdb"
     backend: LMDB
     batch_size: 1 
   }
-  include: { phase: TRAIN }
+  # include: { phase: TRAIN }
 }
 
 # ------------------------------------ #
@@ -320,7 +320,7 @@ layer {
   top: "upsample4"
   upsample_param {
     scale: 2
-    pad_out_h: true
+    # pad_out_h: true
   }
 }
 layer {
@@ -531,7 +531,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 11
+    num_output: 4
     kernel_size: 1
     weight_filler {
       type: "msra"
@@ -575,8 +575,8 @@ layer {
    theta_alpha: 160
    theta_beta: 3
    theta_gamma: 3
-   spatial_filter_weights_str: "3 3"
-   bilateral_filter_weights_str: "3 3"
+   spatial_filter_weights_str: "3 1 3 1"
+   bilateral_filter_weights_str: "3 1 3 1" 
   }
 }
 
@@ -599,13 +599,21 @@ layer {
 
     ### PCA Stroma - Ep weights
     ### Iffy, because it's highly dependent on the frame
-    class_weighting: 1.0412  # Epithielium
-    class_weighting: 0.9608  # Stroma
+    # class_weighting: 1.0412  # Epithielium
+    # class_weighting: 0.9608  # Stroma
 
     ### Nuclei weights
     # ignore_label: 0
     # class_weighting: 0.62447
     # class_weighting: 2.50446
+
+    ### ccRCC 4 class
+    # ignore_label: 3
+    class_weighting: 0.6776
+    class_weighting: 8.8597
+    class_weighting: 1.9073
+    class_weighting: 0.2565
+
   }
 }
 layer {
