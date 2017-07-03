@@ -498,7 +498,7 @@ BOOST_PYTHON_MODULE(_caffe) {
     .def("step", &Solver<Dtype>::Step)
 
     // Added to expose ApplyUpdate function of solvers -NI
-    .def("update", &Solver<Dtype>::ApplyUpdate)
+    //.def("update", &Solver<Dtype>::ApplyUpdate)
     .def("restore", &Solver<Dtype>::Restore)
     .def("snapshot", &Solver<Dtype>::Snapshot)
     .def("share_weights", &share_weights)
