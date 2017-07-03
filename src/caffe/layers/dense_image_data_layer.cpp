@@ -201,13 +201,14 @@ void DenseImageDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
     CHECK(cv_img.data) << "Could not load " << lines_[lines_id_].first;
     cv::Mat cv_lab = ReadImageToCVMat(root_folder + lines_[lines_id_].second,
         new_height, new_width, false, true);
-    CHECK(cv_lab.data) << "Could not load " << lines_[lines_id_].second; 
+    CHECK(cv_lab.data) << "Could not load " << lines_[lines_id_].second;
     read_time += timer.MicroSeconds();
     timer.Start();
     // Apply transformations (mirror, crop...) to the image
     int offset = batch->data_.offset(item_id);
+    int label_offset = batch->label_.offset(item_id);
     this->transformed_data_.set_cpu_data(prefetch_data + offset);
-    this->transformed_label_.set_cpu_data(prefetch_data + offset);
+    this->transformed_label_.set_cpu_data(prefetch_label + label_offset);
     this->data_transformer_->Transform(cv_img, &(this->transformed_data_));
     this->data_transformer_->Transform(cv_lab, &(this->transformed_label_));
     trans_time += timer.MicroSeconds();

@@ -4,9 +4,9 @@ layer {
   type: "Data"
   top: "data"  # 128*128
   data_param {
-    source: "/Users/nathaning/databases/nuclei/feature_lmdb"
+    source: "/Users/nathaning/databases/pca/feature_lmdb"
     backend: LMDB
-    batch_size: 1
+    batch_size: 4
   }
   include: { phase: TRAIN }
 }
@@ -17,23 +17,22 @@ layer {
   type: "Data"
   top: "label"
   data_param {
-    source: "/Users/nathaning/databases/nuclei/mask_lmdb"
+    source: "/Users/nathaning/databases/pca/mask_lmdb"
     backend: LMDB
-    batch_size: 1
+    batch_size: 4
   }
-
   include: { phase: TRAIN }
 }
 
-#
+
 layer {
  name: "data_rgb"
  type: "Data"
  top: "data"
  data_param {
-   source: "/Users/nathaning/databases/nuclei/feature_test_lmdb"
+   source: "/Users/nathaning/databases/pca/feature_test_lmdb"
    backend: LMDB
-   batch_size: 1
+   batch_size: 3
  }
  include: { phase: TEST }
 }
@@ -42,9 +41,9 @@ layer {
  type: "Data"
  top: "label"
  data_param {
-   source: "/Users/nathaning/databases/nuclei/mask_test_lmdb"
+   source: "/Users/nathaning/databases/pca/mask_test_lmdb"
    backend: LMDB
-   batch_size: 1
+   batch_size: 3
  }
  include: { phase: TEST }
 }
@@ -77,7 +76,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 8
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -140,7 +139,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 8
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -188,11 +187,132 @@ layer {
   }
 }
 
+
+# 64*64
+layer {
+  name: "conv3"
+  type: "Convolution"
+  bottom: "pool2"
+  top: "conv3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 8
+    kernel_size: 7
+    pad: 3
+    weight_filler {
+      type: "msra"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  bottom: "conv3"
+  top: "conv3"
+  name: "conv3_bn"
+  type: "BN"
+  bn_param {
+  scale_filler {
+    type: "constant"
+    value: 1
+  }
+  shift_filler {
+    type: "constant"
+    value: 0.001
+  }
+ }
+}
+layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "conv3"
+  top: "conv3"
+}
+
+# 32*32
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "conv3"
+  top: "pool3"
+  top: "pool3_mask"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+
+
+
+# 64*64
+layer {
+  name: "upsample3"
+  type: "Upsample"
+  bottom: "pool3"
+  bottom: "pool3_mask"
+  top: "upsample3"
+  upsample_param {
+    scale: 2
+    # upsample_h:64
+    # upsample_w:64
+  }
+}
+layer {
+  name: "conv_decode3"
+  type: "Convolution"
+  bottom: "upsample3"
+  top: "conv_decode3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 8
+    kernel_size: 7
+    pad: 3
+    weight_filler {
+      type: "msra"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  bottom: "conv_decode3"
+  top: "conv_decode3"
+  name: "conv_decode3_bn"
+  type: "BN"
+  bn_param {
+  scale_filler {
+    type: "constant"
+    value: 1
+  }
+  shift_filler {
+    type: "constant"
+    value: 0.001
+  }
+ }
+}
+
 # 64*64
 layer {
   name: "upsample2"
   type: "Upsample"
-  bottom: "pool2"
+  bottom: "conv_decode3"
   bottom: "pool2_mask"
   top: "upsample2"
   upsample_param {
@@ -215,7 +335,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 8
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -272,7 +392,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 8
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -324,11 +444,6 @@ layer {
   }
 }
 
-#layer { type: 'Crop' name: 'crop' bottom: 'bigscore' bottom: 'data' top: 'coarse' }
-
-
-###### First train with this commented
-
 layer { 
   type: 'Split' 
   name: 'splitting'
@@ -360,8 +475,8 @@ layer {
    theta_alpha: 160
    theta_beta: 3
    theta_gamma: 3
-   # spatial_filter_weights_str: "1 5"
-   # bilateral_filter_weights_str: "5 3"
+   spatial_filter_weights_str: "1 1"
+   bilateral_filter_weights_str: "1 1"
   }
 }
 
@@ -372,20 +487,20 @@ layer {
   bottom: "label"
   top: "loss"
   loss_param {
-    # normalize: true
+    normalize: true
     weight_by_label_freqs: true
     ### PCA weights
     # class_weighting: 5.215
-    # class_weighting: 1.0
+    class_weighting: 1.0
     # class_weighting: 2.0137
-    # class_weighting: 0.9508
+    class_weighting: 0.9508
     # class_weighting: 0.8109
-    # ignore_label: 0
+    # ignore_label: 3
 
     ### Nuclei weights
     # ignore_label: 0
-    class_weighting: 0.62447
-    class_weighting: 2.50446
+    # class_weighting: 0.62447
+    # class_weighting: 2.50446
   }
 }
 layer {

@@ -1,3 +1,4 @@
+# /Users/nathaning/software/caffe-segnet-crf/notebooks_osx/models/deploy-segnet-crfrnn-small.prototxt
 name: "SegNet-CRFRNN"
 layer {
   name: "data"
@@ -7,8 +8,8 @@ layer {
     shape: {
       dim: 1
       dim: 3
-      dim: 1024
-      dim: 1024
+      dim: 512
+      dim: 512
     }
   }
 }
@@ -40,7 +41,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -103,7 +104,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -151,11 +152,132 @@ layer {
   }
 }
 
+
+# 64*64
+layer {
+  name: "conv3"
+  type: "Convolution"
+  bottom: "pool2"
+  top: "conv3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    kernel_size: 7
+    pad: 3
+    weight_filler {
+      type: "msra"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  bottom: "conv3"
+  top: "conv3"
+  name: "conv3_bn"
+  type: "BN"
+  bn_param {
+  scale_filler {
+    type: "constant"
+    value: 1
+  }
+  shift_filler {
+    type: "constant"
+    value: 0.001
+  }
+ }
+}
+layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "conv3"
+  top: "conv3"
+}
+
+# 32*32
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "conv3"
+  top: "pool3"
+  top: "pool3_mask"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+
+
+
+# 64*64
+layer {
+  name: "upsample3"
+  type: "Upsample"
+  bottom: "pool3"
+  bottom: "pool3_mask"
+  top: "upsample3"
+  upsample_param {
+    scale: 2
+    # upsample_h:64
+    # upsample_w:64
+  }
+}
+layer {
+  name: "conv_decode3"
+  type: "Convolution"
+  bottom: "upsample3"
+  top: "conv_decode3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    kernel_size: 7
+    pad: 3
+    weight_filler {
+      type: "msra"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  bottom: "conv_decode3"
+  top: "conv_decode3"
+  name: "conv_decode3_bn"
+  type: "BN"
+  bn_param {
+  scale_filler {
+    type: "constant"
+    value: 1
+  }
+  shift_filler {
+    type: "constant"
+    value: 0.001
+  }
+ }
+}
+
 # 64*64
 layer {
   name: "upsample2"
   type: "Upsample"
-  bottom: "pool2"
+  bottom: "conv_decode3"
   bottom: "pool2_mask"
   top: "upsample2"
   upsample_param {
@@ -178,7 +300,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -235,7 +357,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 12
+    num_output: 64
     kernel_size: 7
     pad: 3
     weight_filler {
@@ -287,11 +409,6 @@ layer {
   }
 }
 
-#layer { type: 'Crop' name: 'crop' bottom: 'bigscore' bottom: 'data' top: 'coarse' }
-
-
-###### First train with this commented
-
 layer { 
   type: 'Split' 
   name: 'splitting'
@@ -308,22 +425,22 @@ layer {
   bottom: "data"
   top: "crfrnn"
   param {
-    lr_mult: 1000 #learning rate for W_G
+    lr_mult: 100000 #learning rate for W_G
   }
   param {
-    lr_mult: 1000 #learning rate for W_B
+    lr_mult: 100000 #learning rate for W_B
   }
   param {
-    lr_mult: 100 #learning rate for compatiblity transform matrix
+    lr_mult: 10000 #learning rate for compatiblity transform matrix
   }
   multi_stage_meanfield_param {
-   num_iterations: 10
+   num_iterations: 5
    compatibility_mode: POTTS#Initialize the compatilibity transform matrix with a matrix whose diagonal is -1.
    threshold: 2
    theta_alpha: 160
    theta_beta: 3
    theta_gamma: 3
-   spatial_filter_weights_str: "1 5"
-   bilateral_filter_weights_str: "5 3"
+   spatial_filter_weights_str: "1 1"
+   bilateral_filter_weights_str: "1 1"
   }
 }
