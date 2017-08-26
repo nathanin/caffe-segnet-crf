@@ -1,8 +1,10 @@
 # Caffe SegNet and CRFasRNN merger
 
 ### Notes
-Work in progress. This development is for research purposes only. See our publications:
-* I'd put pubs here- IF I HAD ANY
+Work in progress. This development is for research purposes only. See publications of the original authors below.
+
+#### What I did:
+Next to nothing; I combined two great `caffe` branches into one and updated one layer to use cuDNN 5.1; I exposed the solver update operation in pycaffe.
 
 
 System information:
